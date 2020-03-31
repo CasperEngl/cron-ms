@@ -1,0 +1,26 @@
+{
+    "name": "casperengl/cron-ms",
+    "description": "Runs cron jobs based on milliseconds, instead of minutes, hours, days, weeks and years",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Casper",
+            "email": "me@casperengelmann.com"
+        }
+    ],
+    "require": {
+        "nesbot/carbon": "^2.32"
+    },
+    "autoload": {
+        "files": [
+            "./src/MsSleep.php"
+        ],
+        "psr-4": {
+            "CasperEngl\\CronMs\\": "src/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    }
+}
