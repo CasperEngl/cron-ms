@@ -3,9 +3,15 @@
 use Carbon\Carbon;
 use CasperEngl\CronMs\CronMs;
 use PHPUnit\Framework\TestCase;
+use CasperEngl\CronMs\UnsafeException;
 
 class CronMsUnitTest extends TestCase
 {
+    public function setUp(): void
+    {
+        Carbon::setTestNow();
+    }
+
     /**
      * @test
      */
@@ -41,8 +47,6 @@ class CronMsUnitTest extends TestCase
      */
     public function has_start_timestamp()
     {
-        Carbon::setTestNow();
-
         $cron = CronMs::fromMs(5000, null, function () {}, false);
 
         $this->assertEquals(Carbon::now()->timestamp, $cron->start_timestamp);
@@ -53,10 +57,50 @@ class CronMsUnitTest extends TestCase
      */
     public function has_start_carbon_instance()
     {
-        Carbon::setTestNow();
-
         $cron = CronMs::fromMs(5000, null, function () {}, false);
 
         $this->assertEquals(Carbon::class, get_class($cron->start));
     }
+    /**
+     * @test
+     */
+    public function from_ms_unsafe_allowed()
+    {
+        $cron = CronMs::fromMs(300, null, function () {}, false, true);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * @test
+     */
+    public function from_ms_unsafe_disallowed()
+    {
+        $this->expectException(UnsafeException::class);
+        $this->expectExceptionMessage('$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+
+        $cron = CronMs::fromMs(300, null, function () {}, false);
+    }
+
+    /**
+     * @test
+     */
+    public function from_seconds_unsafe_allowed()
+    {
+        $cron = CronMs::fromSeconds(0.3, null, function () {}, false, true);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * @test
+     */
+    public function from_seconds_unsafe_disallowed()
+    {
+        $this->expectException(UnsafeException::class);
+        $this->expectExceptionMessage('$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+
+        $cron = CronMs::fromSeconds(0.3, null, function () {}, false);
+    }
+
 }
