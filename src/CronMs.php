@@ -100,7 +100,7 @@ class CronMs
 
     public function run(): self
     {
-        set_time_limit(60);
+        set_time_limit($this->time_limit * 1000);
 
         $division = self::MINUTE / $this->ms;
 
