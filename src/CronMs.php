@@ -5,12 +5,6 @@ namespace CasperEngl\CronMs;
 use Closure;
 use Exception;
 use Carbon\Carbon;
-use function CasperEngl\CronMs\m_sleep;
-
-class MillisecondsException extends Exception
-{
-    protected $message = '$ms is not set in constructor. Initialize with fromMs or fromSeconds';
-}
 
 class CronMs
 {
@@ -64,9 +58,12 @@ class CronMs
         $division = self::MINUTE / $this->ms;
 
         for ($i = 0; $i < floor($division); $i++) {
-            \call_user_func($this->fn, $i);
+            call_user_func($this->fn, $i);
 
-            if (! m_sleep(round(self::MINUTE / $division, 2), $this->start->add(60, 'seconds')->timestamp)) {
+            if (! m_sleep(
+                self::MINUTE / $division,
+                $this->start->add(60, 'seconds')
+            )) {
                 break;
             }
         }
