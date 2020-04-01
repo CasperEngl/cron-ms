@@ -32,7 +32,7 @@ class CronMs
          * This allows the second parameter to be $fn, thus removing
          * the need to define a $time_limit
          */
-        if ($time_limit !== null && ! is_numeric($time_limit)) {
+        if ($time_limit !== null && !is_numeric($time_limit)) {
             [$fn, $time_limit] = [$time_limit, $fn];
         }
 
