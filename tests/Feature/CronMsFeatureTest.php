@@ -21,7 +21,7 @@ class CronMsFeatureTest extends TestCase
     {
         Carbon::setTestNow();
 
-        $this->log("\n" . 'Running a new cron test... Expect wait time of 60 seconds.' . "\n\n");
+        $this->log("\n" . 'Running a new cron test... Expect wait time of approximately 60 seconds.' . "\n\n");
     }
 
     /**
@@ -153,6 +153,14 @@ class CronMsFeatureTest extends TestCase
 
     protected function checkTime(Carbon $start, float $subtract_ms = 0)
     {
+        $this->log(
+            sprintf(
+                "\nTime: %s (%sms subtracted in test)\n\n",
+                $start->diffInMilliseconds(Carbon::now()),
+                $subtract_ms
+            )
+        );
+
         // More than 59 seconds
         $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59000 - $subtract_ms);
         // Less than 61 seconds
