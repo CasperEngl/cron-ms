@@ -19,6 +19,8 @@ class CronMsFeatureTest extends TestCase
 
     public function setUp(): void
     {
+        Carbon::setTestNow();
+
         $this->log("\n" . 'Running a new cron test... Expect wait time of 60 seconds.' . "\n\n");
     }
 
@@ -61,7 +63,7 @@ class CronMsFeatureTest extends TestCase
             );
         });
 
-        $this->checkStartEnd($start);
+        $this->checkTime($start);
     }
     
     /**
@@ -84,7 +86,7 @@ class CronMsFeatureTest extends TestCase
             );
         });
 
-        $this->checkStartEnd($start);
+        $this->checkTime($start, 5000);
     }
     
     /**
@@ -107,7 +109,7 @@ class CronMsFeatureTest extends TestCase
             );
         });
 
-        $this->checkStartEnd($start);
+        $this->checkTime($start);
     }
     
     /**
@@ -130,7 +132,7 @@ class CronMsFeatureTest extends TestCase
             );
         });
 
-        $this->checkStartEnd($start);
+        $this->checkTime($start);
     }
 
     /**
@@ -146,16 +148,14 @@ class CronMsFeatureTest extends TestCase
             }
         });
 
-        $this->checkStartEnd($start);
+        $this->checkTime($start);
     }
 
-    protected function checkStartEnd(Carbon $start)
+    protected function checkTime(Carbon $start, float $subtract_ms = 0)
     {
-        var_dump($start->diffInMilliseconds(Carbon::now()));
-
         // More than 59 seconds
-        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59000);
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59000 - $subtract_ms);
         // Less than 61 seconds
-        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 61000);
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 61000 - $subtract_ms);
     }
 }
