@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 
-if (! function_exists('m_sleep')) {
+if (!function_exists('m_sleep')) {
     /**
      * Returns true after sleep, false if the time limit has been reached
      * 

@@ -53,10 +53,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add(5000 * $i, 'ms')
+                    ->add('ms', 5000 * $i)
                     ->between(
-                        $now->copy()->sub(10, 'ms'),
-                        $now->copy()->add(10, 'ms')
+                        $now->copy()->sub('ms', 10),
+                        $now->copy()->add('ms', 10)
                     )
             );
         });
@@ -76,10 +76,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add(5500 * $i, 'ms')
+                    ->add('ms', 5500 * $i)
                     ->between(
-                        $now->copy()->sub(10, 'ms'),
-                        $now->copy()->add(10, 'ms')
+                        $now->copy()->sub('ms', 10),
+                        $now->copy()->add('ms', 10)
                     )
             );
         });
@@ -99,10 +99,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add(5000 * $i, 'ms')
+                    ->add('ms', 5000 * $i)
                     ->between(
-                        $now->copy()->sub(10, 'ms'),
-                        $now->copy()->add(10, 'ms')
+                        $now->copy()->sub('ms', 10),
+                        $now->copy()->add('ms', 10)
                     )
             );
         });
@@ -122,10 +122,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add(5500 * $i, 'ms')
+                    ->add('ms', 5500 * $i)
                     ->between(
-                        $now->copy()->sub(10, 'ms'),
-                        $now->copy()->add(10, 'ms')
+                        $now->copy()->sub('ms', 10),
+                        $now->copy()->add('ms', 10)
                     )
             );
         });
@@ -151,9 +151,11 @@ class CronMsFeatureTest extends TestCase
 
     protected function checkStartEnd(Carbon $start)
     {
-        // More than 59.9 seconds
-        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59900);
-        // Less than 60.1 seconds
-        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 60100);
+        var_dump($start->diffInMilliseconds(Carbon::now()));
+
+        // More than 59 seconds
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59000);
+        // Less than 61 seconds
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 61000);
     }
 }

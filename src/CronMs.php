@@ -24,19 +24,15 @@ class CronMs
 
     protected float $execution_time = 0;
 
-    public function __construct(
-        int $ms,
-        $time_limit,
-        $fn,
-        bool $unsafe
-    ) {
+    public function __construct(int $ms, $time_limit, $fn, bool $unsafe)
+    {
         /**
          * Swap $time_limit and $fn if $time_limit is non-numeric
          * 
          * This allows the second parameter to be $fn, thus removing
          * the need to define a $time_limit
          */
-        if (! is_numeric($time_limit)) {
+        if ($time_limit !== null && ! is_numeric($time_limit)) {
             [$fn, $time_limit] = [$time_limit, $fn];
         }
 
@@ -62,13 +58,8 @@ class CronMs
      * @param bool $unsafe
      * @return self
      */
-    public static function fromMs(
-        int $ms,
-        $time_limit = null,
-        $fn = null,
-        $run_immediately = true,
-        $unsafe = false
-    ): self {
+    public static function fromMs(int $ms, $time_limit = null, $fn = null, $run_immediately = true, $unsafe = false): self
+    {
         $cron = new self($ms, $time_limit, $fn, $unsafe);
 
         $cron->checkUnsafe();
@@ -89,14 +80,9 @@ class CronMs
      * @param bool $unsafe
      * @return self
      */
-    public static function fromSeconds(
-        float $seconds,
-        $time_limit = null,
-        $fn = null,
-        $run_immediately = true,
-        $unsafe = false
-    ): self {
-        $cron = new self($seconds * 1000, $time_limit, $fn, $unsafe);
+    public static function fromSeconds(float $seconds, $time_limit = null, $fn = null, $run_immediately = true, $unsafe = false): self
+    {
+        $cron = new self((int) $seconds * 1000, $time_limit, $fn, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -120,18 +106,17 @@ class CronMs
 
             $time_end = microtime(true);
 
-            if (! m_sleep(
-                self::MINUTE / $division,
-                $this->getLimit()
-            )) {
+            if (!m_sleep(self::MINUTE / $division, $this->getLimit())) {
                 break;
-                throw new Exception('Execution exceeded limit.');
             }
 
-            // When $start has been subtracted from $end, we're left
-            // with the execution time in microseconds
-            // https://www.php.net/manual/en/function.microtime.php
-            // https://stackoverflow.com/a/17035868
+            /**
+             * When $start has been subtracted from $end, we're left
+             * with the execution time in microseconds
+             * 
+             * https://www.php.net/manual/en/function.microtime.php
+             * https://stackoverflow.com/a/17035868
+             */
             if ($this->execution_time) {
                 // Compare to last execution time
                 $this->execution_time = ($this->execution_time + ($time_end - $time_start) * 1000) / 2;
@@ -146,7 +131,7 @@ class CronMs
 
     protected function checkUnsafe()
     {
-        if (! $this->unsafe && $this->ms < 500) {
+        if (!$this->unsafe && $this->ms < 500) {
             throw new Exception('$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
         }
     }
@@ -154,7 +139,7 @@ class CronMs
     protected function getLimit()
     {
         return $this->start->copy()
-            ->add($this->time_limit, 'ms')
-            ->sub($this->execution_time, 'ms');
+            ->add('ms', $this->time_limit)
+            ->sub('ms', $this->execution_time);
     }
 }

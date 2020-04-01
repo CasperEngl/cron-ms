@@ -62,7 +62,7 @@ class MsSleepUnitTest extends TestCase
         $this->assertTrue(
             m_sleep(
                 100,
-                Carbon::now()->add(200, 'ms')
+                Carbon::now()->add('ms', 200)
             )
         );
     }
@@ -75,7 +75,7 @@ class MsSleepUnitTest extends TestCase
         $this->assertFalse(
             m_sleep(
                 100,
-                Carbon::now()->sub(200, 'ms')
+                Carbon::now()->sub('ms', 200)
             )
         );
     }

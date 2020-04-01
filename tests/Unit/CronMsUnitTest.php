@@ -11,7 +11,7 @@ class CronMsUnitTest extends TestCase
      */
     public function is_cron_ms_instance()
     {
-        $cron = CronMs::fromMs(5000, function () {}, false);
+        $cron = CronMs::fromMs(5000, null, function () {}, false);
 
         $this->assertInstanceOf(CronMs::class, $cron);
     }
@@ -21,7 +21,7 @@ class CronMsUnitTest extends TestCase
      */
     public function five_thousand_milliseconds()
     {
-        $cron = CronMs::fromMs(5000, function () {}, false);
+        $cron = CronMs::fromMs(5000, null, function () {}, false);
 
         $this->assertEquals(5000, $cron->ms);
     }
@@ -31,7 +31,7 @@ class CronMsUnitTest extends TestCase
      */
     public function five_seconds()
     {
-        $cron = CronMs::fromSeconds(5, function () {}, false);
+        $cron = CronMs::fromSeconds(5, null, function () {}, false);
 
         $this->assertEquals(5000, $cron->ms);
     }
@@ -43,7 +43,7 @@ class CronMsUnitTest extends TestCase
     {
         Carbon::setTestNow();
 
-        $cron = CronMs::fromMs(5000, function () {}, false);
+        $cron = CronMs::fromMs(5000, null, function () {}, false);
 
         $this->assertEquals(Carbon::now()->timestamp, $cron->start_timestamp);
     }
@@ -55,7 +55,7 @@ class CronMsUnitTest extends TestCase
     {
         Carbon::setTestNow();
 
-        $cron = CronMs::fromMs(5000, function () {}, false);
+        $cron = CronMs::fromMs(5000, null, function () {}, false);
 
         $this->assertEquals(Carbon::class, get_class($cron->start));
     }
