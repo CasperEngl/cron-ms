@@ -123,10 +123,19 @@ class CronMs
              * https://stackoverflow.com/a/17035868
              */
             if ($this->execution_time) {
-                // Compare to last execution time
+                /**
+                 * Set execution time to average of previous
+                 * execution time and new execution time
+                 * 
+                 * Ensures we get as close to the time limit
+                 * as possible, so the program doesn't keep
+                 * running forever.
+                 */
                 $this->execution_time = ($this->execution_time + ($time_end - $time_start) * 1000) / 2;
             } else {
-                // Set first execution time
+                /**
+                 * Set first execution time
+                 */
                 $this->execution_time = ($time_end - $time_start) * 1000;
             }
         }
