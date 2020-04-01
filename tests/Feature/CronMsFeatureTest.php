@@ -19,31 +19,7 @@ class CronMsFeatureTest extends TestCase
 
     public function setUp(): void
     {
-        $this->log('Running a new cron test... Expect wait time of 60 seconds.');
-    }
-    /**
-     * @test
-     */
-    public function long_running_process_exits_before_sixty_seconds()
-    {
-        $start = Carbon::now();
-
-        $cron = CronMs::fromMs(5000, function ($i) {
-            for ($i = 0; $i < 10; $i++) {
-                $ch = curl_init();
-
-                curl_setopt($ch, CURLOPT_URL, "http://www.example.com/");
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-                curl_exec($ch);
-                curl_close($ch);
-            }
-        });
-
-        $this->log((string) $start->diffInSeconds(Carbon::now()));
-
-        $this->assertTrue($start->diffInSeconds(Carbon::now()) < 60);
+        $this->log("\n" . 'Running a new cron test... Expect wait time of 60 seconds.' . "\n\n");
     }
 
     /**
@@ -75,10 +51,17 @@ class CronMsFeatureTest extends TestCase
         $cron = CronMs::fromMs(5000, function ($i) use ($start) {
             $now = Carbon::now();
 
-            $this->assertEquals((5000 * $i) / 1000, round($now->floatDiffInSeconds($start), 1));
+            $this->assertTrue(
+                $now
+                    ->add(5000 * $i, 'ms')
+                    ->between(
+                        $now->copy()->sub(10, 'ms'),
+                        $now->copy()->add(10, 'ms')
+                    )
+            );
         });
 
-        $this->assertEquals(60, $start->diffInSeconds(Carbon::now()));
+        $this->checkStartEnd($start);
     }
     
     /**
@@ -91,12 +74,17 @@ class CronMsFeatureTest extends TestCase
         $cron = CronMs::fromMs(5500, function ($i) use ($start) {
             $now = Carbon::now();
 
-            $this->assertEquals((5500 * $i) / 1000, round($now->floatDiffInSeconds($start), 1));
+            $this->assertTrue(
+                $now
+                    ->add(5500 * $i, 'ms')
+                    ->between(
+                        $now->copy()->sub(10, 'ms'),
+                        $now->copy()->add(10, 'ms')
+                    )
+            );
         });
 
-        // Process must exit before 60 seconds, therefore,
-        // the last run is completed after 55 seconds in this case
-        $this->assertEquals(55, $start->diffInSeconds(Carbon::now()));
+        $this->checkStartEnd($start);
     }
     
     /**
@@ -109,10 +97,17 @@ class CronMsFeatureTest extends TestCase
         $cron = CronMs::fromSeconds(5, function ($i) use ($start) {
             $now = Carbon::now();
 
-            $this->assertEquals((5000 * $i) / 1000, round($now->floatDiffInSeconds($start), 1));
+            $this->assertTrue(
+                $now
+                    ->add(5000 * $i, 'ms')
+                    ->between(
+                        $now->copy()->sub(10, 'ms'),
+                        $now->copy()->add(10, 'ms')
+                    )
+            );
         });
 
-        $this->assertEquals(60, $start->diffInSeconds(Carbon::now()));
+        $this->checkStartEnd($start);
     }
     
     /**
@@ -125,11 +120,40 @@ class CronMsFeatureTest extends TestCase
         $cron = CronMs::fromSeconds(5.5, function ($i) use ($start) {
             $now = Carbon::now();
 
-            $this->assertEquals((5500 * $i) / 1000, round($now->floatDiffInSeconds($start), 1));
+            $this->assertTrue(
+                $now
+                    ->add(5500 * $i, 'ms')
+                    ->between(
+                        $now->copy()->sub(10, 'ms'),
+                        $now->copy()->add(10, 'ms')
+                    )
+            );
         });
 
-        // Process must exit before 60 seconds, therefore,
-        // the last run is completed after 55 seconds in this case
-        $this->assertEquals(55, $start->diffInSeconds(Carbon::now()));
+        $this->checkStartEnd($start);
+    }
+
+    /**
+     * @test
+     */
+    public function long_running_process_exits_before_sixty_seconds()
+    {
+        $start = Carbon::now();
+
+        $cron = CronMs::fromMs(5000, function ($i) {
+            for ($i = 0; $i < 10; $i++) {
+                sleep(0.725);
+            }
+        });
+
+        $this->checkStartEnd($start);
+    }
+
+    protected function checkStartEnd(Carbon $start)
+    {
+        // More than 59.9 seconds
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59900);
+        // Less than 60.1 seconds
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 60100);
     }
 }
