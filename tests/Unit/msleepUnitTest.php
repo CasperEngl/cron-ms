@@ -19,7 +19,7 @@ class MsSleepUnitTest extends TestCase
     {
         $now = Carbon::now();
         
-        m_sleep(100);
+        msleep(100);
 
         $after = Carbon::now();
 
@@ -33,7 +33,7 @@ class MsSleepUnitTest extends TestCase
     {
         $now = Carbon::now();
         
-        m_sleep(2000);
+        msleep(2000);
 
         $after = Carbon::now();
 
@@ -47,7 +47,7 @@ class MsSleepUnitTest extends TestCase
     {
         $now = Carbon::now();
         
-        m_sleep(Carbon::now()->add(100, 'milliseconds'));
+        msleep(Carbon::now()->add(100, 'milliseconds'));
 
         $after = Carbon::now();
 
@@ -60,7 +60,7 @@ class MsSleepUnitTest extends TestCase
     public function within_time_limit()
     {
         $this->assertTrue(
-            m_sleep(
+            msleep(
                 100,
                 Carbon::now()->add('ms', 200)
             )
@@ -73,10 +73,21 @@ class MsSleepUnitTest extends TestCase
     public function exceeded_time_limit()
     {
         $this->assertFalse(
-            m_sleep(
+            msleep(
                 100,
                 Carbon::now()->sub('ms', 200)
             )
         );
+    }
+
+    /**
+     * @test
+     */
+    public function negative_time_value_warning_triggered()
+    {
+        $this->expectWarning();
+        $this->expectWarningMessage('msleep(): Number of milliseconds must be greater than or equal to 0');
+
+        msleep(-500);
     }
 }

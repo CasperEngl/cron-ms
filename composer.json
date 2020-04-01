@@ -14,7 +14,7 @@
     },
     "autoload": {
         "files": [
-            "./src/MsSleep.php"
+            "./src/msleep.php"
         ],
         "psr-4": {
             "CasperEngl\\CronMs\\": "src/"
