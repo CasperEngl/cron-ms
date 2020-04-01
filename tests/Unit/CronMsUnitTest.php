@@ -45,7 +45,7 @@ class CronMsUnitTest extends TestCase
 
         $cron = CronMs::fromMs(5000, function () {}, false);
 
-        $this->assertEquals(Carbon::now()->timestamp, $cron->startTimeStamp);
+        $this->assertEquals(Carbon::now()->timestamp, $cron->start_timestamp);
     }
 
     /**

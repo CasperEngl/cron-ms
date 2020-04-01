@@ -32,13 +32,13 @@ $cron->run();
 
 // Properties
 
-// You can access `$ms`, `$startTimeStamp` and `$startTime` from the CronMs instance
+// You can access `$ms`, `$start_timestamp` and `$startTime` from the CronMs instance
 $cron = CronMs::fromMs(5000, function ($i /* each iteration count is returned here, start at 0 */) {
   // ... your code
 });
 
 $cron->ms // 5000
-$cron->startTimeStamp // unix timestamp
+$cron->start_timestamp // unix timestamp
 $cron->start // Carbon\Carbon instance
 ```
 
