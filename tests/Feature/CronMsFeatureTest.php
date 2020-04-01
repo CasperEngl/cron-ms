@@ -161,9 +161,9 @@ class CronMsFeatureTest extends TestCase
             )
         );
 
-        // More than 59 seconds
-        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59000 - $subtract_ms);
-        // Less than 61 seconds
-        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 61000 - $subtract_ms);
+        // More than 59.9 seconds
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) >= 59900 - $subtract_ms);
+        // Less than 60.1 seconds
+        $this->assertTrue($start->diffInMilliseconds(Carbon::now()) <= 60100 - $subtract_ms);
     }
 }
