@@ -6,6 +6,11 @@ use Closure;
 use Exception;
 use Carbon\Carbon;
 
+class UnsafeException extends Exception
+{
+    protected $message = '$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.';
+}
+
 class CronMs
 {
     const MINUTE = 60000;
@@ -106,7 +111,7 @@ class CronMs
 
             $time_end = microtime(true);
 
-            if (!m_sleep(self::MINUTE / $division, $this->getLimit())) {
+            if (!msleep(self::MINUTE / $division, $this->getLimit())) {
                 break;
             }
 
@@ -132,7 +137,7 @@ class CronMs
     protected function checkUnsafe()
     {
         if (!$this->unsafe && $this->ms < 500) {
-            throw new Exception('$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+            throw new UnsafeException();
         }
     }
 
