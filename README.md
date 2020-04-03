@@ -1,7 +1,7 @@
 # Cron Milliseconds
 
-![https://scrutinizer-ci.com/g/CasperEngl/cron-ms/badges/quality-score.png?b=master](https://scrutinizer-ci.com/g/CasperEngl/cron-ms?b=master)
-![https://scrutinizer-ci.com/g/CasperEngl/cron-ms/badges/build.png?b=master](https://scrutinizer-ci.com/g/CasperEngl/cron-ms?b=master)
+![https://scrutinizer-ci.com/g/CasperEngl/cron-ms?b=master](https://scrutinizer-ci.com/g/CasperEngl/cron-ms/badges/quality-score.png?b=master)
+![https://scrutinizer-ci.com/g/CasperEngl/cron-ms?b=master](https://scrutinizer-ci.com/g/CasperEngl/cron-ms/badges/build.png?b=master)
 
 This library makes it easy to run a piece of code, every X milliseconds or seconds.
 
