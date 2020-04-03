@@ -2,8 +2,8 @@
 
 use Carbon\Carbon;
 use CasperEngl\CronMs\CronMs;
-use PHPUnit\Framework\TestCase;
 use CasperEngl\CronMs\Unsafe;
+use PHPUnit\Framework\TestCase;
 
 class CronMsUnitTest extends TestCase
 {
