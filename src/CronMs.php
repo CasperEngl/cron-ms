@@ -1,71 +1,64 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CasperEngl\CronMs;
 
-use Closure;
-use Exception;
 use Carbon\Carbon;
+use Closure;
 
-class UnsafeException extends Exception
+final class CronMs
 {
-    protected $message = '$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.';
-}
+    use HasMsleep;
 
-class CronMs
-{
-    const MINUTE = 60000;
+    private const MINUTE = 60000;
 
-    public int $ms;
-    
-    public float $time_limit;
+    private int $milliseconds;
 
-    public bool $unsafe;
-    
-    protected Closure $fn;
+    private ?int $time_limit_ms;
 
-    public Carbon $start;
+    private bool $unsafe;
 
-    public int $start_timestamp;
+    private Closure $func;
 
-    protected float $execution_time = 0;
+    private Carbon $start;
 
-    public function __construct(int $ms, $time_limit, $fn, bool $unsafe)
+    private float $execution_time = 0;
+
+    public function __construct(int $milliseconds, callable $func, ?int $time_limit_ms, bool $unsafe)
     {
-        /**
-         * Swap $time_limit and $fn if $time_limit is non-numeric
-         * 
-         * This allows the second parameter to be $fn, thus removing
-         * the need to define a $time_limit
-         */
-        if ($time_limit !== null && !is_numeric($time_limit)) {
-            [$fn, $time_limit] = [$time_limit, $fn];
-        }
+        $this->milliseconds = $milliseconds;
 
-        $this->ms = $ms;
-
-        $this->time_limit = $time_limit ?: 60000;
+        $this->time_limit = $time_limit_ms ?? 60000;
 
         $this->unsafe = $unsafe;
 
-        $this->fn = Closure::fromCallable($fn);
+        $this->func = Closure::fromCallable($func);
 
         $this->start = Carbon::now();
-        
-        $this->start_timestamp = $this->start->timestamp;
     }
 
     /**
-     * Returns an instance of CronMs
-     * @param int $ms
-     * @param float|callable $time_limit
-     * @param callable|null $fn
-     * @param bool $run_immediately
-     * @param bool $unsafe
-     * @return self
+     * @return int|float|bool|Closure|Carbon
      */
-    public static function fromMs(int $ms, $time_limit = null, $fn = null, $run_immediately = true, $unsafe = false): self
+    public function __get(string $property)
     {
-        $cron = new self($ms, $time_limit, $fn, $unsafe);
+        if (property_exists($this, $property)) {
+            return $this->$property;
+        }
+    }
+
+    /**
+     * @return self Instance of CronMs
+     */
+    public static function fromMs(
+        int $milliseconds,
+        callable $func,
+        ?int $time_limit_ms = null,
+        bool $run_immediately = true,
+        bool $unsafe = false
+    ): self {
+        $cron = new self($milliseconds, $func, $time_limit_ms, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -77,17 +70,16 @@ class CronMs
     }
 
     /**
-     * Returns an instance of CronMs
-     * @param int $ms
-     * @param float|callable $time_limit
-     * @param callable|null $fn
-     * @param bool $run_immediately
-     * @param bool $unsafe
-     * @return self
+     * @return self Instance of CronMs
      */
-    public static function fromSeconds(float $seconds, $time_limit = null, $fn = null, $run_immediately = true, $unsafe = false): self
-    {
-        $cron = new self((int) $seconds * 1000, $time_limit, $fn, $unsafe);
+    public static function fromSeconds(
+        float $seconds,
+        callable $func,
+        ?int $time_limit_ms = null,
+        bool $run_immediately = true,
+        bool $unsafe = false
+    ): self {
+        $cron = new self((int) $seconds * 1000, $func, $time_limit_ms, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -98,62 +90,93 @@ class CronMs
         return $cron;
     }
 
+    /**
+     * Executes the function
+     *
+     * @return self Return the same instance
+     */
     public function run(): self
     {
-        set_time_limit($this->time_limit * 1000);
+        if ($this->time_limit) {
+            set_time_limit($this->time_limit * 1000);
+        }
 
-        $division = self::MINUTE / $this->ms;
+        $division = self::MINUTE / $this->milliseconds;
+        $flooredDivision = floor($division);
 
-        for ($i = 0; $i < floor($division); $i++) {
-            $time_start = microtime(true);
+        for ($i = 0; $i < $flooredDivision; $i++) {
+            $this->callFunc($i);
 
-            call_user_func($this->fn, $i);
-
-            $time_end = microtime(true);
-
-            if (!msleep(self::MINUTE / $division, $this->getLimit())) {
+            if (! $this->msleep(self::MINUTE / $division, $this->getLimit())) {
                 break;
-            }
-
-            /**
-             * When $start has been subtracted from $end, we're left
-             * with the execution time in microseconds
-             * 
-             * https://www.php.net/manual/en/function.microtime.php
-             * https://stackoverflow.com/a/17035868
-             */
-            if ($this->execution_time) {
-                /**
-                 * Set execution time to average of previous
-                 * execution time and new execution time
-                 * 
-                 * Ensures we get as close to the time limit
-                 * as possible, so the program doesn't keep
-                 * running forever.
-                 */
-                $this->execution_time = ($this->execution_time + ($time_end - $time_start) * 1000) / 2;
-            } else {
-                /**
-                 * Set first execution time
-                 */
-                $this->execution_time = ($time_end - $time_start) * 1000;
             }
         }
 
         return $this;
     }
 
-    protected function checkUnsafe()
+    private function callFunc(): void
     {
-        if (!$this->unsafe && $this->ms < 500) {
-            throw new UnsafeException();
+        $time_start = microtime(true);
+
+        call_user_func_array($this->func, func_get_args());
+
+        $time_end = microtime(true);
+
+        $this->updateExecutionTime($time_start, $time_end);
+    }
+
+    /**
+     * When $start has been subtracted from $end, we're left
+     * with the execution time in microseconds
+     *
+     * https://www.php.net/manual/en/function.microtime.php
+     * https://stackoverflow.com/a/17035868
+     *
+     * Sets execution time to average of previous
+     * execution time and new execution time
+     *
+     * Ensures we get as close to the time limit
+     * as possible, so the program doesn't keep
+     * running forever.
+     */
+    private function updateExecutionTime(
+        float $time_start,
+        float $time_end
+    ): void {
+        if ($this->execution_time) {
+            $this->execution_time = (
+                $this->execution_time +
+                ($time_end - $time_start) *
+                 1000
+            ) / 2;
+        } else {
+            /**
+             * Set first execution time
+             */
+            $this->execution_time = ($time_end - $time_start) * 1000;
         }
     }
 
-    protected function getLimit()
+    private function checkUnsafe(): void
     {
-        return $this->start->copy()
-            ->add('ms', $this->time_limit)
-            ->sub('ms', $this->execution_time);
+        if (! $this->unsafe && $this->milliseconds < 500) {
+            throw new Unsafe('$milliseconds is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+        }
+    }
+
+    private function getLimit(): Carbon
+    {
+        $limit = $this->start->copy();
+
+        if ($this->time_limit) {
+            $limit->add('ms', $this->time_limit);
+        }
+
+        if ($this->execution_time) {
+            $limit->sub('ms', $this->execution_time);
+        }
+
+        return $limit;
     }
 }

@@ -3,7 +3,7 @@
 use Carbon\Carbon;
 use CasperEngl\CronMs\CronMs;
 use PHPUnit\Framework\TestCase;
-use CasperEngl\CronMs\UnsafeException;
+use CasperEngl\CronMs\Unsafe;
 
 class CronMsUnitTest extends TestCase
 {
@@ -17,7 +17,7 @@ class CronMsUnitTest extends TestCase
      */
     public function is_cron_ms_instance()
     {
-        $cron = CronMs::fromMs(5000, null, function () {}, false);
+        $cron = CronMs::fromMs(5000, function () {}, null, false);
 
         $this->assertInstanceOf(CronMs::class, $cron);
     }
@@ -27,9 +27,9 @@ class CronMsUnitTest extends TestCase
      */
     public function five_thousand_milliseconds()
     {
-        $cron = CronMs::fromMs(5000, null, function () {}, false);
+        $cron = CronMs::fromMs(5000, function () {}, null, false);
 
-        $this->assertEquals(5000, $cron->ms);
+        $this->assertEquals(5000, $cron->milliseconds);
     }
     
     /**
@@ -37,9 +37,9 @@ class CronMsUnitTest extends TestCase
      */
     public function five_seconds()
     {
-        $cron = CronMs::fromSeconds(5, null, function () {}, false);
+        $cron = CronMs::fromSeconds(5, function () {}, 60000, false);
 
-        $this->assertEquals(5000, $cron->ms);
+        $this->assertEquals(5000, $cron->milliseconds);
     }
 
     /**
@@ -47,9 +47,9 @@ class CronMsUnitTest extends TestCase
      */
     public function has_start_timestamp()
     {
-        $cron = CronMs::fromMs(5000, null, function () {}, false);
+        $cron = CronMs::fromMs(5000, function () {}, null, false);
 
-        $this->assertEquals(Carbon::now()->timestamp, $cron->start_timestamp);
+        $this->assertEquals(Carbon::now()->valueOf(), $cron->start->valueOf());
     }
 
     /**
@@ -57,7 +57,7 @@ class CronMsUnitTest extends TestCase
      */
     public function has_start_carbon_instance()
     {
-        $cron = CronMs::fromMs(5000, null, function () {}, false);
+        $cron = CronMs::fromMs(5000, function () {}, null, false);
 
         $this->assertEquals(Carbon::class, get_class($cron->start));
     }
@@ -66,7 +66,7 @@ class CronMsUnitTest extends TestCase
      */
     public function from_ms_unsafe_allowed()
     {
-        $cron = CronMs::fromMs(300, null, function () {}, false, true);
+        $cron = CronMs::fromMs(300, function () {}, null, false, true);
 
         $this->addToAssertionCount(1);
     }
@@ -76,10 +76,10 @@ class CronMsUnitTest extends TestCase
      */
     public function from_ms_unsafe_disallowed()
     {
-        $this->expectException(UnsafeException::class);
-        $this->expectExceptionMessage('$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+        $this->expectException(Unsafe::class);
+        $this->expectExceptionMessage('$milliseconds is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
 
-        $cron = CronMs::fromMs(300, null, function () {}, false);
+        $cron = CronMs::fromMs(300, function () {}, 60000, false, false);
     }
 
     /**
@@ -87,7 +87,7 @@ class CronMsUnitTest extends TestCase
      */
     public function from_seconds_unsafe_allowed()
     {
-        $cron = CronMs::fromSeconds(0.3, null, function () {}, false, true);
+        $cron = CronMs::fromSeconds(0.3, function () {}, 60000, false, true);
 
         $this->addToAssertionCount(1);
     }
@@ -97,10 +97,10 @@ class CronMsUnitTest extends TestCase
      */
     public function from_seconds_unsafe_disallowed()
     {
-        $this->expectException(UnsafeException::class);
-        $this->expectExceptionMessage('$ms is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+        $this->expectException(Unsafe::class);
+        $this->expectExceptionMessage('$milliseconds is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
 
-        $cron = CronMs::fromSeconds(0.3, null, function () {}, false);
+        $cron = CronMs::fromSeconds(0.3, function () {}, 60000, false, false);
     }
 
 }
