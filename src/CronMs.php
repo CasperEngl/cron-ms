@@ -97,7 +97,7 @@ final class CronMs
      */
     public function run(): self
     {
-        if ($this->time_limit) {
+        if ($this->time_limit !== null) {
             set_time_limit($this->time_limit * 1000);
         }
 
@@ -169,12 +169,12 @@ final class CronMs
     {
         $limit = $this->start->copy();
 
-        if ($this->time_limit) {
+        if ($this->time_limit !== null) {
             $limit->addMilliseconds($this->time_limit);
         }
 
         if ($this->execution_time) {
-            $limit->subMilliseconds($this->execution_time);
+            $limit->subMilliseconds((int) $this->execution_time);
         }
 
         return $limit;
