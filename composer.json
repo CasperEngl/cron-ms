@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "nesbot/carbon": "^2.32"
+        "nesbot/carbon": "^2.35"
     },
     "autoload": {
         "psr-4": {
@@ -19,6 +19,9 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
-        "nunomaduro/phpinsights": "^1.14"
+        "nunomaduro/phpinsights": "^1.14",
+        "nunomaduro/collision": "^5.0.0-BETA1",
+        "pestphp/pest": "^0.1.5",
+        "larapack/dd": "^1.1"
     }
 }
