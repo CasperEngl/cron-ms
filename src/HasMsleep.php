@@ -24,9 +24,9 @@ trait HasMsleep
      */
     public function msleep($time, ?Carbon $time_limit = null): bool
     {
-        $this->negativeMsleepCheck($time);
+        $this->negativeCheck($time);
 
-        $this->passedTimeLimitMsleepCheck($time_limit);
+        $this->passedTimeLimitCheck($time_limit);
 
         if ($time instanceof Carbon) {
             usleep((int) $time->diffInMilliseconds(Carbon::now()) * 1000);
@@ -41,7 +41,7 @@ trait HasMsleep
     /**
      * @param int|float|Carbon $time
      */
-    private function negativeMsleepCheck($time): void
+    private function negativeCheck($time): void
     {
         // If negative time is received
         if (
@@ -52,7 +52,7 @@ trait HasMsleep
         }
     }
 
-    private function passedTimeLimitMsleepCheck(?Carbon $time_limit = null): void
+    private function passedTimeLimitCheck(?Carbon $time_limit = null): void
     {
         if ($time_limit && $time_limit->isPast()) {
             throw new TimeLimitExceededException();
