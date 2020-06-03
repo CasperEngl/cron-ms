@@ -55,10 +55,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add('ms', 5000 * $i)
+                    ->addMilliseconds(5000 * $i)
                     ->between(
-                        $now->copy()->sub('ms', 10),
-                        $now->copy()->add('ms', 10)
+                        $now->copy()->subMilliseconds(10),
+                        $now->copy()->addMilliseconds(10)
                     )
             );
         });
@@ -78,10 +78,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add('ms', 5500 * $i)
+                    ->addMilliseconds(5500 * $i)
                     ->between(
-                        $now->copy()->sub('ms', 10),
-                        $now->copy()->add('ms', 10)
+                        $now->copy()->subMilliseconds(10),
+                        $now->copy()->addMilliseconds(10)
                     )
             );
         });
@@ -101,10 +101,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add('ms', 5000 * $i)
+                    ->addMilliseconds(5000 * $i)
                     ->between(
-                        $now->copy()->sub('ms', 10),
-                        $now->copy()->add('ms', 10)
+                        $now->copy()->subMilliseconds(10),
+                        $now->copy()->addMilliseconds(10)
                     )
             );
         });
@@ -124,10 +124,10 @@ class CronMsFeatureTest extends TestCase
 
             $this->assertTrue(
                 $now
-                    ->add('ms', 5500 * $i)
+                    ->addMilliseconds(5500 * $i)
                     ->between(
-                        $now->copy()->sub('ms', 10),
-                        $now->copy()->add('ms', 10)
+                        $now->copy()->subMilliseconds(10),
+                        $now->copy()->addMilliseconds(10)
                     )
             );
         });

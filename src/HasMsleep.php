@@ -26,9 +26,7 @@ trait HasMsleep
     {
         $this->negativeMsleepCheck($time);
 
-        if (! $this->passedTimeLimitMsleepCheck($time_limit)) {
-            return false;
-        }
+        $this->passedTimeLimitMsleepCheck($time_limit);
 
         if ($time instanceof Carbon) {
             usleep((int) $time->diffInMilliseconds(Carbon::now()) * 1000);
@@ -50,21 +48,14 @@ trait HasMsleep
             ($time instanceof Carbon && $time->isPast()) ||
             (! $time instanceof Carbon && $time < 0)
         ) {
-            trigger_error(
-                'msleep(): Number of milliseconds must be greater than or equal to 0',
-                E_USER_WARNING
-            );
+            throw new MillisecondsMustBePositiveException('msleep(): Number of milliseconds must be greater than or equal to 0');
         }
     }
 
-    private function passedTimeLimitMsleepCheck(?Carbon $time_limit = null): bool
+    private function passedTimeLimitMsleepCheck(?Carbon $time_limit = null): void
     {
-        // Passed time limit
         if ($time_limit && $time_limit->isPast()) {
-            // Return false when the time limit has been reached
-            return false;
+            throw new TimeLimitExceededException();
         }
-
-        return true;
     }
 }

@@ -6,6 +6,6 @@ namespace CasperEngl\CronMs;
 
 use Exception;
 
-final class Unsafe extends Exception
+final class TimeLimitExceededException extends Exception
 {
 }

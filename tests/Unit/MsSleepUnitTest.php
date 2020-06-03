@@ -2,6 +2,8 @@
 
 use Carbon\Carbon;
 use CasperEngl\CronMs\CronMs;
+use CasperEngl\CronMs\MillisecondsMustBePositiveException;
+use CasperEngl\CronMs\TimeLimitExceededException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -31,7 +33,7 @@ class MsSleepUnitTest extends TestCase
 
         $after = Carbon::now();
 
-        $this->assertTrue($now->add(110, 'milliseconds')->gte($after));
+        $this->assertTrue($now->addMilliseconds(110)->gte($after));
     }
 
     /**
@@ -45,7 +47,7 @@ class MsSleepUnitTest extends TestCase
 
         $after = Carbon::now();
 
-        $this->assertTrue($now->add(2010, 'milliseconds')->gte($after));
+        $this->assertTrue($now->addMilliseconds(2010)->gte($after));
     }
 
     /**
@@ -55,11 +57,11 @@ class MsSleepUnitTest extends TestCase
     {
         $now = Carbon::now();
         
-        $this->cron->msleep(Carbon::now()->add(100, 'milliseconds'));
+        $this->cron->msleep(Carbon::now()->addMilliseconds(100));
 
         $after = Carbon::now();
 
-        $this->assertTrue($now->add(110, 'milliseconds')->gte($after));
+        $this->assertTrue($now->addMilliseconds(110)->gte($after));
     }
 
     /**
@@ -70,7 +72,7 @@ class MsSleepUnitTest extends TestCase
         $this->assertTrue(
             $this->cron->msleep(
                 100,
-                Carbon::now()->add('ms', 200)
+                Carbon::now()->addMilliseconds(200)
             )
         );
     }
@@ -80,11 +82,11 @@ class MsSleepUnitTest extends TestCase
      */
     public function exceeded_time_limit()
     {
-        $this->assertFalse(
-            $this->cron->msleep(
-                100,
-                Carbon::now()->sub('ms', 200)
-            )
+        $this->expectException(TimeLimitExceededException::class);
+
+        $this->cron->msleep(
+            100,
+            Carbon::now()->subMilliseconds(200)
         );
     }
 
@@ -93,8 +95,8 @@ class MsSleepUnitTest extends TestCase
      */
     public function negative_time_value_warning_triggered()
     {
-        $this->expectWarning();
-        $this->expectWarningMessage('msleep(): Number of milliseconds must be greater than or equal to 0');
+        $this->expectException(MillisecondsMustBePositiveException::class);
+        $this->expectExceptionMessage('msleep(): Number of milliseconds must be greater than or equal to 0');
 
         $this->cron->msleep(-500);
     }

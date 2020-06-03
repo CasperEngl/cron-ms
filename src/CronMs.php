@@ -15,7 +15,7 @@ final class CronMs
 
     private int $milliseconds;
 
-    private ?int $time_limit_ms;
+    private ?int $time_limit;
 
     private bool $unsafe;
 
@@ -25,11 +25,11 @@ final class CronMs
 
     private float $execution_time = 0;
 
-    public function __construct(int $milliseconds, callable $func, ?int $time_limit_ms, bool $unsafe)
+    public function __construct(int $milliseconds, callable $func, ?int $time_limit, bool $unsafe)
     {
         $this->milliseconds = $milliseconds;
 
-        $this->time_limit = $time_limit_ms ?? 60000;
+        $this->time_limit = $time_limit ?? 60000;
 
         $this->unsafe = $unsafe;
 
@@ -54,11 +54,11 @@ final class CronMs
     public static function fromMs(
         int $milliseconds,
         callable $func,
-        ?int $time_limit_ms = null,
+        ?int $time_limit = null,
         bool $run_immediately = true,
         bool $unsafe = false
     ): self {
-        $cron = new self($milliseconds, $func, $time_limit_ms, $unsafe);
+        $cron = new self($milliseconds, $func, $time_limit, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -75,11 +75,11 @@ final class CronMs
     public static function fromSeconds(
         float $seconds,
         callable $func,
-        ?int $time_limit_ms = null,
+        ?int $time_limit = null,
         bool $run_immediately = true,
         bool $unsafe = false
     ): self {
-        $cron = new self((int) $seconds * 1000, $func, $time_limit_ms, $unsafe);
+        $cron = new self((int) $seconds * 1000, $func, $time_limit, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -161,7 +161,7 @@ final class CronMs
     private function checkUnsafe(): void
     {
         if (! $this->unsafe && $this->milliseconds < 500) {
-            throw new Unsafe('$milliseconds is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
+            throw new UnsafeException('$milliseconds is less than 500ms. This may not be the desired behavior. Make sure to turn on the $unsafe flag to proceed.');
         }
     }
 
@@ -170,11 +170,11 @@ final class CronMs
         $limit = $this->start->copy();
 
         if ($this->time_limit) {
-            $limit->add('ms', $this->time_limit);
+            $limit->addMilliseconds($this->time_limit);
         }
 
         if ($this->execution_time) {
-            $limit->sub('ms', $this->execution_time);
+            $limit->subMilliseconds($this->execution_time);
         }
 
         return $limit;
