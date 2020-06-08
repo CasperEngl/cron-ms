@@ -19,13 +19,13 @@ final class CronMs
 
     private bool $unsafe;
 
-    private Closure $func;
+    private Closure $process;
 
     private Carbon $start;
 
     private float $execution_time = 0;
 
-    public function __construct(int $milliseconds, callable $func, ?int $time_limit, bool $unsafe)
+    public function __construct(int $milliseconds, callable $process, ?int $time_limit, bool $unsafe)
     {
         $this->milliseconds = $milliseconds;
 
@@ -33,13 +33,13 @@ final class CronMs
 
         $this->unsafe = $unsafe;
 
-        $this->func = Closure::fromCallable($func);
+        $this->process = Closure::fromCallable($process);
 
         $this->start = Carbon::now();
     }
 
     /**
-     * @return int|float|bool|Closure|Carbon
+     * @return int|float|bool|Closure|Carbon|void
      */
     public function __get(string $property)
     {
@@ -53,12 +53,12 @@ final class CronMs
      */
     public static function fromMs(
         int $milliseconds,
-        callable $func,
+        callable $process,
         ?int $time_limit = null,
         bool $run_immediately = true,
         bool $unsafe = false
     ): self {
-        $cron = new self($milliseconds, $func, $time_limit, $unsafe);
+        $cron = new self($milliseconds, $process, $time_limit, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -74,12 +74,12 @@ final class CronMs
      */
     public static function fromSeconds(
         float $seconds,
-        callable $func,
+        callable $process,
         ?int $time_limit = null,
         bool $run_immediately = true,
         bool $unsafe = false
     ): self {
-        $cron = new self((int) $seconds * 1000, $func, $time_limit, $unsafe);
+        $cron = new self((int) $seconds * 1000, $process, $time_limit, $unsafe);
 
         $cron->checkUnsafe();
 
@@ -119,7 +119,7 @@ final class CronMs
     {
         $time_start = microtime(true);
 
-        call_user_func_array($this->func, func_get_args());
+        call_user_func_array($this->process, func_get_args());
 
         $time_end = microtime(true);
 
